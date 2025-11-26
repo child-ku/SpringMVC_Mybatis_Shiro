@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sojson.time.dao.TimeRecordMapper">
+    <resultMap id="BaseResultMap" type="com.sojson.time.model.TimeRecord">
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="user_id" property="userId" jdbcType="BIGINT" />
+        <result column="project_id" property="projectId" jdbcType="BIGINT" />
+        <result column="work_date" property="workDate" jdbcType="VARCHAR" />
+        <result column="hours" property="hours" jdbcType="DOUBLE" />
+        <result column="description" property="description" jdbcType="VARCHAR" />
+        <result column="status" property="status" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_id, project_id, work_date, hours, description, status, create_time, update_time
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_time_record
+        WHERE id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="selectByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_time_record
+        WHERE user_id = #{userId,jdbcType=BIGINT}
+        ORDER BY work_date DESC, create_time DESC
+    </select>
+
+    <select id="selectByProjectId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_time_record
+        WHERE project_id = #{projectId,jdbcType=BIGINT}
+        ORDER BY work_date DESC, create_time DESC
+    </select>
+
+    <select id="selectByUserIdAndProjectId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_time_record
+        WHERE user_id = #{userId,jdbcType=BIGINT}
+        AND project_id = #{projectId,jdbcType=BIGINT}
+        ORDER BY work_date DESC, create_time DESC
+    </select>
+
+    <select id="selectByUserIdAndWorkDate" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_time_record
+        WHERE user_id = #{userId,jdbcType=BIGINT}
+        AND work_date = #{workDate,jdbcType=VARCHAR}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByUserIdAndDateRange" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_time_record
+        WHERE user_id = #{userId,jdbcType=BIGINT}
+        AND work_date BETWEEN #{startDate,jdbcType=VARCHAR} AND #{endDate,jdbcType=VARCHAR}
+        ORDER BY work_date DESC, create_time DESC
+    </select>
+
+    <select id="selectByProjectIdAndDateRange" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_time_record
+        WHERE project_id = #{projectId,jdbcType=BIGINT}
+        AND work_date BETWEEN #{startDate,jdbcType=VARCHAR} AND #{endDate,jdbcType=VARCHAR}
+        ORDER BY work_date DESC, create_time DESC
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_time_record
+        ORDER BY work_date DESC, create_time DESC
+    </select>
+
+    <insert id="insert" parameterType="com.sojson.time.model.TimeRecord">
+        INSERT INTO t_time_record
+        (user_id, project_id, work_date, hours, description, status, create_time, update_time)
+        VALUES
+        (#{userId,jdbcType=BIGINT}, #{projectId,jdbcType=BIGINT}, #{workDate,jdbcType=VARCHAR}, #{hours,jdbcType=DOUBLE},
+        #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+    </insert>
+
+    <insert id="insertSelective" parameterType="com.sojson.time.model.TimeRecord">
+        INSERT INTO t_time_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="projectId != null">project_id,</if>
+            <if test="workDate != null">work_date,</if>
+            <if test="hours != null">hours,</if>
+            <if test="description != null">description,</if>
+            <if test="status != null">status,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId,jdbcType=BIGINT},</if>
+            <if test="projectId != null">#{projectId,jdbcType=BIGINT},</if>
+            <if test="workDate != null">#{workDate,jdbcType=VARCHAR},</if>
+            <if test="hours != null">#{hours,jdbcType=DOUBLE},</if>
+            <if test="description != null">#{description,jdbcType=VARCHAR},</if>
+            <if test="status != null">#{status,jdbcType=VARCHAR},</if>
+            <if test="createTime != null">#{createTime,jdbcType=TIMESTAMP},</if>
+            <if test="updateTime != null">#{updateTime,jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.sojson.time.model.TimeRecord">
+        UPDATE t_time_record
+        <set>
+            <if test="userId != null">user_id = #{userId,jdbcType=BIGINT},</if>
+            <if test="projectId != null">project_id = #{projectId,jdbcType=BIGINT},</if>
+            <if test="workDate != null">work_date = #{workDate,jdbcType=VARCHAR},</if>
+            <if test="hours != null">hours = #{hours,jdbcType=DOUBLE},</if>
+            <if test="description != null">description = #{description,jdbcType=VARCHAR},</if>
+            <if test="status != null">status = #{status,jdbcType=VARCHAR},</if>
+            <if test="updateTime != null">update_time = #{updateTime,jdbcType=TIMESTAMP},</if>
+        </set>
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.sojson.time.model.TimeRecord">
+        UPDATE t_time_record
+        SET user_id = #{userId,jdbcType=BIGINT},
+            project_id = #{projectId,jdbcType=BIGINT},
+            work_date = #{workDate,jdbcType=VARCHAR},
+            hours = #{hours,jdbcType=DOUBLE},
+            description = #{description,jdbcType=VARCHAR},
+            status = #{status,jdbcType=VARCHAR},
+            update_time = #{updateTime,jdbcType=TIMESTAMP}
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        DELETE FROM t_time_record
+        WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+</mapper>

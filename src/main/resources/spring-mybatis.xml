@@ -68,7 +68,7 @@
 		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
 	</bean>	
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.sojson.common.dao" />
+		<property name="basePackage" value="com.sojson.common.dao;com.sojson.project.dao;com.sojson.time.dao" />
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
 	</bean>
 	 <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">

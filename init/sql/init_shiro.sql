@@ -13,9 +13,9 @@ MySQL - 5.5.23 : Database - shiro
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-CREATE DATABASE /*!32312 IF NOT EXISTS*/`shiro` /*!40100 DEFAULT CHARACTER SET utf8 */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/`smm_03_01` /*!40100 DEFAULT CHARACTER SET utf8 */;
 
-USE `shiro`;
+USE `smm_03_01`;
 
 /*Table structure for table `u_permission` */
 
@@ -91,6 +91,92 @@ CREATE TABLE `u_user_role` (
 /*Data for the table `u_user_role` */
 
 insert  into `u_user_role`(`uid`,`rid`) values (12,4),(11,3),(11,4),(1,1);
+
+/*Table structure for table `project` */
+
+DROP TABLE IF EXISTS `project`;
+
+CREATE TABLE `project` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL COMMENT 'Project name',
+  `description` text COMMENT 'Project description',
+  `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1: In progress, 2: Completed, 3: Paused',
+  `manager_id` bigint(20) NOT NULL COMMENT 'Project manager user ID',
+  `create_time` datetime NOT NULL COMMENT 'Create time',
+  `update_time` datetime NOT NULL COMMENT 'Update time',
+  PRIMARY KEY (`id`),
+  KEY `fk_project_manager` (`manager_id`),
+  CONSTRAINT `fk_project_manager` FOREIGN KEY (`manager_id`) REFERENCES `u_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*Table structure for table `project_member` */
+
+DROP TABLE IF EXISTS `project_member`;
+
+CREATE TABLE `project_member` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `project_id` bigint(20) NOT NULL COMMENT 'Project ID',
+  `user_id` bigint(20) NOT NULL COMMENT 'User ID',
+  `join_time` datetime NOT NULL COMMENT 'Join time',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_project_user` (`project_id`,`user_id`),
+  KEY `fk_project_member_project` (`project_id`),
+  KEY `fk_project_member_user` (`user_id`),
+  CONSTRAINT `fk_project_member_project` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`),
+  CONSTRAINT `fk_project_member_user` FOREIGN KEY (`user_id`) REFERENCES `u_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*Table structure for table `time_record` */
+
+DROP TABLE IF EXISTS `time_record`;
+
+CREATE TABLE `time_record` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) NOT NULL COMMENT 'User ID',
+  `project_id` bigint(20) NOT NULL COMMENT 'Project ID',
+  `work_date` date NOT NULL COMMENT 'Work date',
+  `hours` decimal(5,2) NOT NULL COMMENT 'Work hours',
+  `description` varchar(255) COMMENT 'Work description',
+  `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1: Submitted, 2: Approved, 3: Rejected, 4: Archived',
+  `create_time` datetime NOT NULL COMMENT 'Create time',
+  `update_time` datetime NOT NULL COMMENT 'Update time',
+  `approver_id` bigint(20) COMMENT 'Approver user ID',
+  `approve_time` datetime COMMENT 'Approve time',
+  `approve_comment` varchar(255) COMMENT 'Approve comment',
+  PRIMARY KEY (`id`),
+  KEY `fk_time_record_user` (`user_id`),
+  KEY `fk_time_record_project` (`project_id`),
+  KEY `fk_time_record_approver` (`approver_id`),
+  CONSTRAINT `fk_time_record_user` FOREIGN KEY (`user_id`) REFERENCES `u_user` (`id`),
+  CONSTRAINT `fk_time_record_project` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`),
+  CONSTRAINT `fk_time_record_approver` FOREIGN KEY (`approver_id`) REFERENCES `u_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*Table structure for table `time_modification_request` */
+
+DROP TABLE IF EXISTS `time_modification_request`;
+
+CREATE TABLE `time_modification_request` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `time_record_id` bigint(20) NOT NULL COMMENT 'Time record ID',
+  `user_id` bigint(20) NOT NULL COMMENT 'Request user ID',
+  `new_hours` decimal(5,2) NOT NULL COMMENT 'New work hours',
+  `new_description` varchar(255) COMMENT 'New work description',
+  `reason` varchar(255) COMMENT 'Modification reason',
+  `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1: Pending, 2: Approved, 3: Rejected',
+  `create_time` datetime NOT NULL COMMENT 'Create time',
+  `update_time` datetime NOT NULL COMMENT 'Update time',
+  `approver_id` bigint(20) COMMENT 'Approver user ID',
+  `approve_time` datetime COMMENT 'Approve time',
+  `approve_comment` varchar(255) COMMENT 'Approve comment',
+  PRIMARY KEY (`id`),
+  KEY `fk_time_modification_request_record` (`time_record_id`),
+  KEY `fk_time_modification_request_user` (`user_id`),
+  KEY `fk_time_modification_request_approver` (`approver_id`),
+  CONSTRAINT `fk_time_modification_request_record` FOREIGN KEY (`time_record_id`) REFERENCES `time_record` (`id`),
+  CONSTRAINT `fk_time_modification_request_user` FOREIGN KEY (`user_id`) REFERENCES `u_user` (`id`),
+  CONSTRAINT `fk_time_modification_request_approver` FOREIGN KEY (`approver_id`) REFERENCES `u_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

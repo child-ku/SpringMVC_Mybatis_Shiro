@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sojson.time.dao.TimeModificationRequestMapper">
+    <resultMap id="BaseResultMap" type="com.sojson.time.model.TimeModificationRequest">
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="time_record_id" property="timeRecordId" jdbcType="BIGINT" />
+        <result column="user_id" property="userId" jdbcType="BIGINT" />
+        <result column="new_hours" property="newHours" jdbcType="DOUBLE" />
+        <result column="new_description" property="newDescription" jdbcType="VARCHAR" />
+        <result column="reason" property="reason" jdbcType="VARCHAR" />
+        <result column="status" property="status" jdbcType="VARCHAR" />
+        <result column="reviewer_id" property="reviewerId" jdbcType="BIGINT" />
+        <result column="review_comment" property="reviewComment" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, time_record_id, user_id, new_hours, new_description, reason, status, reviewer_id, review_comment, create_time, update_time
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_time_modification_request
+        WHERE id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="selectByTimeRecordId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_time_modification_request
+        WHERE time_record_id = #{timeRecordId,jdbcType=BIGINT}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_time_modification_request
+        WHERE user_id = #{userId,jdbcType=BIGINT}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByStatus" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_time_modification_request
+        WHERE status = #{status,jdbcType=VARCHAR}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByUserIdAndStatus" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_time_modification_request
+        WHERE user_id = #{userId,jdbcType=BIGINT}
+        AND status = #{status,jdbcType=VARCHAR}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByProjectIdAndStatus" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_time_modification_request t
+        LEFT JOIN t_time_record tr ON t.time_record_id = tr.id
+        WHERE tr.project_id = #{projectId,jdbcType=BIGINT}
+        AND t.status = #{status,jdbcType=VARCHAR}
+        ORDER BY t.create_time DESC
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_time_modification_request
+        ORDER BY create_time DESC
+    </select>
+
+    <insert id="insert" parameterType="com.sojson.time.model.TimeModificationRequest">
+        INSERT INTO t_time_modification_request
+        (time_record_id, user_id, new_hours, new_description, reason, status, reviewer_id, review_comment, create_time, update_time)
+        VALUES
+        (#{timeRecordId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{newHours,jdbcType=DOUBLE}, #{newDescription,jdbcType=VARCHAR},
+        #{reason,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{reviewerId,jdbcType=BIGINT}, #{reviewComment,jdbcType=VARCHAR},
+        #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+    </insert>
+
+    <insert id="insertSelective" parameterType="com.sojson.time.model.TimeModificationRequest">
+        INSERT INTO t_time_modification_request
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="timeRecordId != null">time_record_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="newHours != null">new_hours,</if>
+            <if test="newDescription != null">new_description,</if>
+            <if test="reason != null">reason,</if>
+            <if test="status != null">status,</if>
+            <if test="reviewerId != null">reviewer_id,</if>
+            <if test="reviewComment != null">review_comment,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="timeRecordId != null">#{timeRecordId,jdbcType=BIGINT},</if>
+            <if test="userId != null">#{userId,jdbcType=BIGINT},</if>
+            <if test="newHours != null">#{newHours,jdbcType=DOUBLE},</if>
+            <if test="newDescription != null">#{newDescription,jdbcType=VARCHAR},</if>
+            <if test="reason != null">#{reason,jdbcType=VARCHAR},</if>
+            <if test="status != null">#{status,jdbcType=VARCHAR},</if>
+            <if test="reviewerId != null">#{reviewerId,jdbcType=BIGINT},</if>
+            <if test="reviewComment != null">#{reviewComment,jdbcType=VARCHAR},</if>
+            <if test="createTime != null">#{createTime,jdbcType=TIMESTAMP},</if>
+            <if test="updateTime != null">#{updateTime,jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.sojson.time.model.TimeModificationRequest">
+        UPDATE t_time_modification_request
+        <set>
+            <if test="timeRecordId != null">time_record_id = #{timeRecordId,jdbcType=BIGINT},</if>
+            <if test="userId != null">user_id = #{userId,jdbcType=BIGINT},</if>
+            <if test="newHours != null">new_hours = #{newHours,jdbcType=DOUBLE},</if>
+            <if test="newDescription != null">new_description = #{newDescription,jdbcType=VARCHAR},</if>
+            <if test="reason != null">reason = #{reason,jdbcType=VARCHAR},</if>
+            <if test="status != null">status = #{status,jdbcType=VARCHAR},</if>
+            <if test="reviewerId != null">reviewer_id = #{reviewerId,jdbcType=BIGINT},</if>
+            <if test="reviewComment != null">review_comment = #{reviewComment,jdbcType=VARCHAR},</if>
+            <if test="updateTime != null">update_time = #{updateTime,jdbcType=TIMESTAMP},</if>
+        </set>
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.sojson.time.model.TimeModificationRequest">
+        UPDATE t_time_modification_request
+        SET time_record_id = #{timeRecordId,jdbcType=BIGINT},
+            user_id = #{userId,jdbcType=BIGINT},
+            new_hours = #{newHours,jdbcType=DOUBLE},
+            new_description = #{newDescription,jdbcType=VARCHAR},
+            reason = #{reason,jdbcType=VARCHAR},
+            status = #{status,jdbcType=VARCHAR},
+            reviewer_id = #{reviewerId,jdbcType=BIGINT},
+            review_comment = #{reviewComment,jdbcType=VARCHAR},
+            update_time = #{updateTime,jdbcType=TIMESTAMP}
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        DELETE FROM t_time_modification_request
+        WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+</mapper>
