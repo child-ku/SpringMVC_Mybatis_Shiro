@@ -92,6 +92,45 @@ CREATE TABLE `u_user_role` (
 
 insert  into `u_user_role`(`uid`,`rid`) values (12,4),(11,3),(11,4),(1,1);
 
+/*Table structure for table `department` */
+
+DROP TABLE IF EXISTS `department`;
+
+CREATE TABLE `department` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL COMMENT '部门名称',
+  `parent_id` bigint(20) DEFAULT NULL COMMENT '父部门ID',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `parent_id` (`parent_id`),
+  CONSTRAINT `department_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `department` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='部门表';
+
+/*Data for the table `department` */
+
+insert  into `department`(`id`,`name`,`parent_id`,`create_time`,`update_time`) values (1,'集团公司',NULL,NOW(),NOW());
+
+/*Table structure for table `employee` */
+
+DROP TABLE IF EXISTS `employee`;
+
+CREATE TABLE `employee` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL COMMENT '员工姓名',
+  `birthday` date DEFAULT NULL COMMENT '出生日期',
+  `phone` varchar(20) DEFAULT NULL COMMENT '联系电话',
+  `department_id` bigint(20) NOT NULL COMMENT '所属部门ID',
+  `user_id` bigint(20) NOT NULL COMMENT '关联用户ID',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `department_id` (`department_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `employee_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `department` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `employee_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `u_user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='员工表';
+
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;

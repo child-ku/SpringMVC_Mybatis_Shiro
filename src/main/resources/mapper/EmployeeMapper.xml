@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sojson.common.mapper.EmployeeMapper" >
+    <resultMap id="BaseResultMap" type="com.sojson.common.model.Employee" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="birthday" property="birthday" jdbcType="DATE" />
+        <result column="phone" property="phone" jdbcType="VARCHAR" />
+        <result column="department_id" property="departmentId" jdbcType="BIGINT" />
+        <result column="user_id" property="userId" jdbcType="BIGINT" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+    
+    <sql id="Base_Column_List" >
+        id, name, birthday, phone, department_id, user_id, create_time, update_time
+    </sql>
+    
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        select 
+        <include refid="Base_Column_List" />
+        from employee
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    
+    <select id="selectByDepartmentId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        select 
+        <include refid="Base_Column_List" />
+        from employee
+        where department_id = #{departmentId,jdbcType=BIGINT}
+        order by id asc
+    </select>
+    
+    <select id="selectByUserId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        select 
+        <include refid="Base_Column_List" />
+        from employee
+        where user_id = #{userId,jdbcType=BIGINT}
+    </select>
+    
+    <select id="selectAll" resultMap="BaseResultMap" >
+        select 
+        <include refid="Base_Column_List" />
+        from employee
+        order by id asc
+    </select>
+    
+    <insert id="insert" parameterType="com.sojson.common.model.Employee" >
+        insert into employee (name, birthday, phone, department_id, user_id, create_time, update_time)
+        values (#{name,jdbcType=VARCHAR}, #{birthday,jdbcType=DATE}, #{phone,jdbcType=VARCHAR}, #{departmentId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, NOW(), NOW())
+    </insert>
+    
+    <insert id="insertSelective" parameterType="com.sojson.common.model.Employee" >
+        insert into employee
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="name != null" >
+                name,
+            </if>
+            <if test="birthday != null" >
+                birthday,
+            </if>
+            <if test="phone != null" >
+                phone,
+            </if>
+            <if test="departmentId != null" >
+                department_id,
+            </if>
+            <if test="userId != null" >
+                user_id,
+            </if>
+            <if test="createTime != null" >
+                create_time,
+            </if>
+            <if test="updateTime != null" >
+                update_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="name != null" >
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="birthday != null" >
+                #{birthday,jdbcType=DATE},
+            </if>
+            <if test="phone != null" >
+                #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="departmentId != null" >
+                #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="userId != null" >
+                #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null" >
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    
+    <update id="updateByPrimaryKeySelective" parameterType="com.sojson.common.model.Employee" >
+        update employee
+        <set >
+            <if test="name != null" >
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="birthday != null" >
+                birthday = #{birthday,jdbcType=DATE},
+            </if>
+            <if test="phone != null" >
+                phone = #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="departmentId != null" >
+                department_id = #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="userId != null" >
+                user_id = #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null" >
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null" >
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    <update id="updateByPrimaryKey" parameterType="com.sojson.common.model.Employee" >
+        update employee
+        set name = #{name,jdbcType=VARCHAR},
+            birthday = #{birthday,jdbcType=DATE},
+            phone = #{phone,jdbcType=VARCHAR},
+            department_id = #{departmentId,jdbcType=BIGINT},
+            user_id = #{userId,jdbcType=BIGINT},
+            create_time = #{createTime,jdbcType=TIMESTAMP},
+            update_time = #{updateTime,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+        delete from employee
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+</mapper>

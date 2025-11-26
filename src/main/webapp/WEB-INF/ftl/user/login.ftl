@@ -169,7 +169,7 @@
             </form>
         </div>
         <!-- Javascript -->
-       <script  src="http://open.sojson.com/common/jquery/jquery1.8.3.min.js"></script>
+       <script  src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
         <script src="http://open.sojson.com/common/MD5.js"></script>
         <script src="http://open.sojson.com/itboy/js/itboy/app/supersized.3.2.7.min.js"></script>
         <script src="http://open.sojson.com/itboy/js/itboy/app/supersized-init.js"></script>
@@ -216,7 +216,7 @@
 			            return false;
 			        }
 			        var pswd = MD5(username +"#" + password),
-			        	data = {pswd:pswd,email:username,rememberMe:$("#rememberMe").is(':checked')};
+        	data = {password:pswd,email:username,rememberMe:$("#rememberMe").is(':checked')};
 			        var load = layer.load();
 			        $.post("${basePath}/u/submitLogin.shtml",data ,function(result){
 			        	layer.close(load);
