@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import javax.servlet.ServletRequest;
@@ -87,48 +88,46 @@ public class KickoutSessionFilter extends AccessControlFilter {
 		}
 		
 		
-		//从缓存获取用户-Session信息 <UserId,SessionId>
-		LinkedHashMap<Long, Serializable> infoMap = cache.get(ONLINE_USER, LinkedHashMap.class);
+		//从缓存获取用户-Session信息 <UserId, List<SessionId>>
+		Map<Long, LinkedList<Serializable>> infoMap = cache.get(ONLINE_USER, Map.class);
 		//如果不存在，创建一个新的
-		infoMap = null == infoMap ? new LinkedHashMap<Long, Serializable>() : infoMap;
+		infoMap = null == infoMap ? new HashMap<Long, LinkedList<Serializable>>() : infoMap;
 		
 		//获取tokenId
 		Long userId = TokenManager.getUserId();
+		LinkedList<Serializable> userSessions = infoMap.get(userId);
+		if (userSessions == null) {
+			userSessions = new LinkedList<Serializable>();
+		}
 		
-		//如果已经包含当前Session，并且是同一个用户，跳过。
-		if(infoMap.containsKey(userId) && infoMap.containsValue(sessionId)){
-			//更新存储到缓存1个小时（这个时间最好和session的有效期一致或者大于session的有效期）
+		//如果当前Session已经存在于用户的Session列表中，刷新它到列表末尾并更新缓存
+		if (userSessions.contains(sessionId)) {
+			userSessions.remove(sessionId);
+			userSessions.add(sessionId);
+			infoMap.put(userId, userSessions);
 			cache.setex(ONLINE_USER, infoMap, 3600);
 			return Boolean.TRUE;
 		}
-		//如果用户相同，Session不相同，那么就要处理了
-		/**
-		 * 如果用户Id相同,Session不相同
-		 * 1.获取到原来的session，并且标记为踢出。
-		 * 2.继续走
-		 */
-		if(infoMap.containsKey(userId) && !infoMap.containsValue(sessionId)){
-			Serializable oldSessionId = infoMap.get(userId);
-			Session oldSession = shiroSessionRepository.getSession(oldSessionId);
-			if(null != oldSession){
+		
+		//如果用户的Session数量已经达到5个，踢掉最早的Session
+		if (userSessions.size() >= 5) {
+			Serializable oldestSessionId = userSessions.removeFirst();
+			Session oldestSession = shiroSessionRepository.getSession(oldestSessionId);
+			if (null != oldestSession) {
 				//标记session已经踢出
-				oldSession.setAttribute(KICKOUT_STATUS, Boolean.TRUE);
-				shiroSessionRepository.saveSession(oldSession);//更新session
-				LoggerUtils.fmtDebug(getClass(), "kickout old session success,oldId[%s]",oldSessionId);
-			}else{
-				shiroSessionRepository.deleteSession(oldSessionId);
-				infoMap.remove(userId);
-				//存储到缓存1个小时（这个时间最好和session的有效期一致或者大于session的有效期）
-				cache.setex(ONLINE_USER, infoMap, 3600);
+				oldestSession.setAttribute(KICKOUT_STATUS, Boolean.TRUE);
+				shiroSessionRepository.saveSession(oldestSession);//更新session
+				LoggerUtils.fmtDebug(getClass(), "kickout old session success,oldId[%s]", oldestSessionId);
+			} else {
+				shiroSessionRepository.deleteSession(oldestSessionId);
 			}
-			return  Boolean.TRUE;
 		}
 		
-		if(!infoMap.containsKey(userId) && !infoMap.containsValue(sessionId)){
-			infoMap.put(userId, sessionId);
-			//存储到缓存1个小时（这个时间最好和session的有效期一致或者大于session的有效期）
-			cache.setex(ONLINE_USER, infoMap, 3600);
-		}
+		//添加当前Session到用户的Session列表末尾
+		userSessions.add(sessionId);
+		infoMap.put(userId, userSessions);
+		//存储到缓存1个小时（这个时间最好和session的有效期一致或者大于session的有效期）
+		cache.setex(ONLINE_USER, infoMap, 3600);
 		return Boolean.TRUE;
 	}
 
