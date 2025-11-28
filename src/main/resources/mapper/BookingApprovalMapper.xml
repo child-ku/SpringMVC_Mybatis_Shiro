@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sojson.conference.dao.BookingApprovalMapper" >
+  <resultMap id="BaseResultMap" type="com.sojson.conference.model.BookingApproval" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="booking_id" property="bookingId" jdbcType="BIGINT" />
+    <result column="approver_id" property="approverId" jdbcType="BIGINT" />
+    <result column="approval_status" property="approvalStatus" jdbcType="INTEGER" />
+    <result column="comment" property="comment" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    id, booking_id, approver_id, approval_status, comment, create_time, update_time
+  </sql>
+
+  <sql id="where_all" >
+    <where>
+      <if test="bookingId != null">
+        and booking_id = #{bookingId,jdbcType=BIGINT}
+      </if>
+      <if test="approverId != null">
+        and approver_id = #{approverId,jdbcType=BIGINT}
+      </if>
+      <if test="approvalStatus != null">
+        and approval_status = #{approvalStatus,jdbcType=INTEGER}
+      </if>
+      <if test="findContent != null and findContent != ''">
+        and LOWER(comment) like LOWER(CONCAT("%", #{findContent,jdbcType=VARCHAR}, "%"))
+      </if>
+    </where>
+  </sql>
+
+  <select id="findAll" resultMap="BaseResultMap" parameterType="java.util.Map">
+    select <include refid="Base_Column_List" />
+    from booking_approval
+    <include refid="where_all" />
+    order by create_time desc
+  </select>
+
+  <select id="findCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+    select count(id)
+    from booking_approval
+    <include refid="where_all" />
+  </select>
+
+  <select id="findByBookingId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+    select <include refid="Base_Column_List" />
+    from booking_approval
+    where booking_id = #{bookingId,jdbcType=BIGINT}
+    order by create_time desc
+  </select>
+
+  <select id="findByApproverId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+    select <include refid="Base_Column_List" />
+    from booking_approval
+    where approver_id = #{approverId,jdbcType=BIGINT}
+    order by create_time desc
+  </select>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select <include refid="Base_Column_List" />
+    from booking_approval
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from booking_approval
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.sojson.conference.model.BookingApproval" >
+    insert into booking_approval (
+      booking_id, approver_id, approval_status, comment, create_time
+    )
+    values (
+      #{bookingId,jdbcType=BIGINT}, #{approverId,jdbcType=BIGINT}, #{approvalStatus,jdbcType=INTEGER},
+      #{comment,jdbcType=VARCHAR}, now()
+    )
+  </insert>
+
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.sojson.conference.model.BookingApproval" >
+    insert into booking_approval
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="bookingId != null">booking_id,</if>
+      <if test="approverId != null">approver_id,</if>
+      <if test="approvalStatus != null">approval_status,</if>
+      <if test="comment != null">comment,</if>
+      create_time,
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="bookingId != null">#{bookingId,jdbcType=BIGINT},</if>
+      <if test="approverId != null">#{approverId,jdbcType=BIGINT},</if>
+      <if test="approvalStatus != null">#{approvalStatus,jdbcType=INTEGER},</if>
+      <if test="comment != null">#{comment,jdbcType=VARCHAR},</if>
+      now(),
+    </trim>
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.sojson.conference.model.BookingApproval" >
+    update booking_approval
+    <set>
+      <if test="bookingId != null">booking_id = #{bookingId,jdbcType=BIGINT},</if>
+      <if test="approverId != null">approver_id = #{approverId,jdbcType=BIGINT},</if>
+      <if test="approvalStatus != null">approval_status = #{approvalStatus,jdbcType=INTEGER},</if>
+      <if test="comment != null">comment = #{comment,jdbcType=VARCHAR},</if>
+      update_time = now(),
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <update id="updateByPrimaryKey" parameterType="com.sojson.conference.model.BookingApproval" >
+    update booking_approval
+    set booking_id = #{bookingId,jdbcType=BIGINT},
+      approver_id = #{approverId,jdbcType=BIGINT},
+      approval_status = #{approvalStatus,jdbcType=INTEGER},
+      comment = #{comment,jdbcType=VARCHAR},
+      update_time = now()
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

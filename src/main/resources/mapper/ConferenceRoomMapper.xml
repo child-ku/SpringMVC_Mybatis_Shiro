@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sojson.conference.dao.ConferenceRoomMapper" >
+  <resultMap id="BaseResultMap" type="com.sojson.conference.model.ConferenceRoom" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="capacity" property="capacity" jdbcType="INTEGER" />
+    <result column="location" property="location" jdbcType="VARCHAR" />
+    <result column="equipment" property="equipment" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="updater" property="updater" jdbcType="VARCHAR" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    id, name, capacity, location, equipment, status, description, creator, create_time, updater, update_time
+  </sql>
+
+  <sql id="where_all" >
+    <where>
+      <if test="findContent != null and findContent != ''">
+        and (
+          LOWER(name) like LOWER(CONCAT("%", #{findContent,jdbcType=VARCHAR}, "%")) or
+          LOWER(location) like LOWER(CONCAT("%", #{findContent,jdbcType=VARCHAR}, "%")) or
+          LOWER(description) like LOWER(CONCAT("%", #{findContent,jdbcType=VARCHAR}, "%"))
+        )
+      </if>
+      <if test="status != null">
+        and status = #{status,jdbcType=INTEGER}
+      </if>
+    </where>
+  </sql>
+
+  <select id="findAll" resultMap="BaseResultMap" parameterType="java.util.Map">
+    select <include refid="Base_Column_List" />
+    from conference_room
+    <include refid="where_all" />
+    order by create_time desc
+  </select>
+
+  <select id="findCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+    select count(id)
+    from conference_room
+    <include refid="where_all" />
+  </select>
+
+  <select id="findAvailableRooms" resultMap="BaseResultMap" >
+    select <include refid="Base_Column_List" />
+    from conference_room
+    where status = 1
+    and id not in (
+      select b.room_id
+      from booking b
+      where b.status in (1, 2) -- 待审批、已批准
+      and b.start_time &lt; #{endTime,jdbcType=VARCHAR}
+      and b.end_time &gt; #{startTime,jdbcType=VARCHAR}
+    )
+    order by name asc
+  </select>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select <include refid="Base_Column_List" />
+    from conference_room
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from conference_room
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.sojson.conference.model.ConferenceRoom" >
+    insert into conference_room (
+      name, capacity, location, equipment, status, description, creator, create_time
+    )
+    values (
+      #{name,jdbcType=VARCHAR}, #{capacity,jdbcType=INTEGER}, #{location,jdbcType=VARCHAR},
+      #{equipment,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{description,jdbcType=VARCHAR},
+      #{creator,jdbcType=VARCHAR}, now()
+    )
+  </insert>
+
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.sojson.conference.model.ConferenceRoom" >
+    insert into conference_room
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="name != null">name,</if>
+      <if test="capacity != null">capacity,</if>
+      <if test="location != null">location,</if>
+      <if test="equipment != null">equipment,</if>
+      <if test="status != null">status,</if>
+      <if test="description != null">description,</if>
+      <if test="creator != null">creator,</if>
+      create_time,
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="name != null">#{name,jdbcType=VARCHAR},</if>
+      <if test="capacity != null">#{capacity,jdbcType=INTEGER},</if>
+      <if test="location != null">#{location,jdbcType=VARCHAR},</if>
+      <if test="equipment != null">#{equipment,jdbcType=VARCHAR},</if>
+      <if test="status != null">#{status,jdbcType=INTEGER},</if>
+      <if test="description != null">#{description,jdbcType=VARCHAR},</if>
+      <if test="creator != null">#{creator,jdbcType=VARCHAR},</if>
+      now(),
+    </trim>
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.sojson.conference.model.ConferenceRoom" >
+    update conference_room
+    <set>
+      <if test="name != null">name = #{name,jdbcType=VARCHAR},</if>
+      <if test="capacity != null">capacity = #{capacity,jdbcType=INTEGER},</if>
+      <if test="location != null">location = #{location,jdbcType=VARCHAR},</if>
+      <if test="equipment != null">equipment = #{equipment,jdbcType=VARCHAR},</if>
+      <if test="status != null">status = #{status,jdbcType=INTEGER},</if>
+      <if test="description != null">description = #{description,jdbcType=VARCHAR},</if>
+      <if test="updater != null">updater = #{updater,jdbcType=VARCHAR},</if>
+      update_time = now(),
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <update id="updateByPrimaryKey" parameterType="com.sojson.conference.model.ConferenceRoom" >
+    update conference_room
+    set name = #{name,jdbcType=VARCHAR},
+      capacity = #{capacity,jdbcType=INTEGER},
+      location = #{location,jdbcType=VARCHAR},
+      equipment = #{equipment,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      description = #{description,jdbcType=VARCHAR},
+      updater = #{updater,jdbcType=VARCHAR},
+      update_time = now()
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
