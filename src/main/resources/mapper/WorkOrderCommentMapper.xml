@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sojson.workorder.dao.WorkOrderCommentMapper" >
+  <resultMap id="BaseResultMap" type="com.sojson.workorder.model.WorkOrderComment" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="work_order_id" property="workOrderId" jdbcType="BIGINT" />
+    <result column="user_id" property="userId" jdbcType="BIGINT" />
+    <result column="comment_content" property="commentContent" jdbcType="TEXT" />
+    <result column="comment_time" property="commentTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, work_order_id, user_id, comment_content, comment_time
+  </sql>
+  
+  <sql id="where_all">
+    <where>
+      <if test="workOrderId != null">
+        and work_order_id = #{workOrderId,jdbcType=BIGINT}
+      </if>
+      <if test="userId != null">
+        and user_id = #{userId,jdbcType=BIGINT}
+      </if>
+      <if test="commentContent != null and commentContent !='' " >
+        and LOWER(comment_content) like  LOWER(CONCAT("%",#{commentContent,jdbcType=VARCHAR},"%"))
+      </if>
+    </where>
+  </sql>
+  
+  <select id="selectByCondition" resultMap="BaseResultMap" parameterType="java.util.Map">
+    select 
+    <include refid="Base_Column_List" />
+    from work_order_comment
+    <include refid="where_all" />
+    order by comment_time desc
+  </select>
+  
+  <select id="selectByWorkOrderId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+    select 
+    <include refid="Base_Column_List" />
+    from work_order_comment
+    where work_order_id = #{workOrderId,jdbcType=BIGINT}
+    order by comment_time desc
+  </select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from work_order_comment
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from work_order_comment
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.sojson.workorder.model.WorkOrderComment" >
+    insert into work_order_comment (work_order_id, user_id, comment_content, 
+      comment_time)
+    values (#{workOrderId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{commentContent,jdbcType=TEXT}, 
+      #{commentTime,jdbcType=TIMESTAMP})
+  </insert>
+  
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.sojson.workorder.model.WorkOrderComment" >
+    insert into work_order_comment
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="workOrderId != null">work_order_id,</if>
+      <if test="userId != null">user_id,</if>
+      <if test="commentContent != null">comment_content,</if>
+      <if test="commentTime != null">comment_time,</if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="workOrderId != null">#{workOrderId,jdbcType=BIGINT},</if>
+      <if test="userId != null">#{userId,jdbcType=BIGINT},</if>
+      <if test="commentContent != null">#{commentContent,jdbcType=TEXT},</if>
+      <if test="commentTime != null">#{commentTime,jdbcType=TIMESTAMP},</if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.sojson.workorder.model.WorkOrderComment" >
+    update work_order_comment
+    <set>
+      <if test="workOrderId != null">work_order_id = #{workOrderId,jdbcType=BIGINT},</if>
+      <if test="userId != null">user_id = #{userId,jdbcType=BIGINT},</if>
+      <if test="commentContent != null">comment_content = #{commentContent,jdbcType=TEXT},</if>
+      <if test="commentTime != null">comment_time = #{commentTime,jdbcType=TIMESTAMP},</if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  <update id="updateByPrimaryKey" parameterType="com.sojson.workorder.model.WorkOrderComment" >
+    update work_order_comment
+    set work_order_id = #{workOrderId,jdbcType=BIGINT},
+      user_id = #{userId,jdbcType=BIGINT},
+      comment_content = #{commentContent,jdbcType=TEXT},
+      comment_time = #{commentTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
